@@ -1,0 +1,15 @@
+GET http://localhost:3001/api/persons
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Farid Guluzade",
+    "number": "050-776-30-43"
+}
+
+###
+
+DELETE http://localhost:3001/api/persons/2
