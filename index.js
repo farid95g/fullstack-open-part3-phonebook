@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/phonebook')
 
 let persons = [
     { 
@@ -46,32 +48,33 @@ app.use(morgan(function (tokens, req, res) {
 }))
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({})
+        .then(persons => res.json(persons))
+        .catch(err => res.status(404).json({ err }))
 })
 
 app.post('/api/persons', (req, res) => {
     const { name, number } = req.body
-    const nameExists = persons.find(person => person.name === name)
+    // const nameExists = persons.find(person => person.name === name)
 
-    if (!name || !number || nameExists) {
-        return res.status(400)
-            .json({
-                error: nameExists 
-                    ? 'name must be unique'
-                    : !name
-                        ? 'you must enter name'
-                        : 'you must enter phone number'
-            })
-    }
+    // if (!name || !number || nameExists) {
+    //     return res.status(400)
+    //         .json({
+    //             error: nameExists 
+    //                 ? 'name must be unique'
+    //                 : !name
+    //                     ? 'you must enter name'
+    //                     : 'you must enter phone number'
+    //         })
+    // }
 
-    const newPerson = {
-        id: Math.random().toString(),
-        name,
-        number
-    }
-
-    persons = persons.concat(newPerson)
-    res.status(201).json(newPerson)
+    const newPerson = new Person({
+        name, number
+    })
+    
+    newPerson.save()
+        .then(newPerson => res.status(201).json(newPerson))
+        .catch(err => res.status(404).json({ err: err.message }))
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -97,5 +100,5 @@ app.get('/info', (req, res) => {
     </div>`)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => console.log(`Server has started on PORT ${PORT}`))
