@@ -6,10 +6,14 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "Farid Guluzade",
-    "number": "050-776-30-43"
+    "name": "new personn",
+    "number": "050-776-30-32"
 }
 
 ###
 
-DELETE http://localhost:3001/api/persons/2
+DELETE http://localhost:3001/api/persons/62fc9693d3fc8abeb7b4ecc66
+
+###
+
+GET http://localhost:3001/api/persons/62fa25534c5dc615d63a50ff
