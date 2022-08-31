@@ -13,6 +13,8 @@ const errorHandler = (err, req, res, next) => {
 
     if (err.name === 'CastError') {
         return res.status(400).send({ error: 'Malformatted id.' })
+    } else if (err.name === 'ValidationError') {
+        return res.status(400).send({ error: err.message })
     }
 
     next(err)
@@ -49,25 +51,36 @@ app.post('/api/persons', (req, res, next) => {
             if (!person) {
                 newPerson.save()
                     .then(newPerson => res.status(201).json(newPerson))
-                    .catch(err => res.status(404).json({ err: err.message }))
+                    .catch(err => next(err))
             } else {
-                person.overwrite(newPerson)
-                    .save()
-                    .then(result => res.json(result))
+                res.status(422).json({ message: `User with name ${name} already exists.` })
             }
         })
         .catch(err => next(err))
 })
 
-app.get('/api/persons/:id', (req, res, next) => {
-    Person.findById(req.params.id)
+app.get('/api/persons/:name', (req, res, next) => {
+    Person.findOne({ name: req.params.name })
         .then(person => {
             if (!person)
-                return res.status(404).json({ error: 'Person not found.' })
+                return res.status(404).json({ message: 'Person not found.' })
             
             res.json(person)
         })
         .catch(err => next(err))
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+    const { name, number } = req.body
+    Person.findByIdAndUpdate(
+        req.params.id,
+        { name, number },
+        { new: true, runValidators: true, context: 'query' }
+    )
+    .then(updatedNote => {
+        res.json(updatedNote)
+    })
+    .catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
