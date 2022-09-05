@@ -62,9 +62,10 @@ app.post('/api/persons', (req, res, next) => {
 app.get('/api/persons/:name', (req, res, next) => {
     Person.findOne({ name: req.params.name })
         .then(person => {
-            if (!person)
+            if (!person) {
                 return res.status(404).json({ message: 'Person not found.' })
-            
+            }
+
             res.json(person)
         })
         .catch(err => next(err))
@@ -76,11 +77,9 @@ app.put('/api/persons/:id', (req, res, next) => {
         req.params.id,
         { name, number },
         { new: true, runValidators: true, context: 'query' }
-    )
-    .then(updatedNote => {
+    ).then(updatedNote => {
         res.json(updatedNote)
-    })
-    .catch(err => next(err))
+    }).catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
